@@ -16,7 +16,7 @@ origin = str(input('Start Address [Roseville, CA]: ') or "Roseville, CA")
 destination = str(input('Destination Address [Marriott Marquis, San Francisco]: ') or "Marriott Marquis, Mission Street, San Francisco")
 arrival_date = str(input('Arrival Date [04/01/2018]: ') or '04/01/2018')
 month, day, year = map(int, arrival_date.split('/'))
-arrival_time = str(input('Arrival Time [12:00]: ') or '12:00')
+arrival_time = str(input('Arrival Time [9:00]: ') or '9:00')
 hour, minute = map(int, arrival_time.split(':'))
 desired_arrival = datetime(year, month, day, hour, minute)
 
@@ -35,10 +35,9 @@ while True:
     else:
         estimated_departure = estimated_departure - (estimated_arrival - desired_arrival)
 
-# TODO: Print start and destination addresses
 print(f'\nStart Address: {directions[0]["legs"][0]["start_address"]}')
 print(f'Destination Address: {directions[0]["legs"][0]["end_address"]}')
 print(f'\nEstimated Departure: {estimated_departure.hour}:{estimated_departure.minute:02d}')
 print(f'Estimated Arrival: {estimated_arrival.hour}:{estimated_arrival.minute:02d}')
-print(f'Travel Time: {directions[0]["legs"][0]["duration"]["text"]}')
+print(f'\nTravel Time: {directions[0]["legs"][0]["duration"]["text"]}')
 print(f'Distance: {directions[0]["legs"][0]["distance"]["text"]}')
