@@ -21,6 +21,7 @@ hour, minute = map(int, arrival_time.split(':'))
 desired_arrival = datetime(year, month, day, hour, minute)
 
 # Estimate travel duration by getting directions with a departure time equal to the desired arrival time
+# TODO: Make a helper function to determine the estimated departure
 directions = get_directions(origin, destination, desired_arrival)
 estimated_departure = desired_arrival - timedelta(seconds=get_duration(directions))
 
@@ -34,6 +35,9 @@ while True:
     else:
         estimated_departure = estimated_departure - (estimated_arrival - desired_arrival)
 
+# TODO: Print start and destination addresses
+print(f'\nStart Address: {directions[0]["legs"][0]["start_address"]}')
+print(f'Destination Address: {directions[0]["legs"][0]["end_address"]}')
 print(f'\nEstimated Departure: {estimated_departure.hour}:{estimated_departure.minute:02d}')
 print(f'Estimated Arrival: {estimated_arrival.hour}:{estimated_arrival.minute:02d}')
 print(f'Travel Time: {directions[0]["legs"][0]["duration"]["text"]}')
