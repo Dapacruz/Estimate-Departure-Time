@@ -7,8 +7,7 @@ def get_directions(origin, destination, time):
     return gmaps.directions(origin, destination, mode="driving", departure_time=time)
 
 def get_duration(directions):
-    duration = directions[0]["legs"][0]["duration_in_traffic"]["value"]
-    return round(duration, 2)
+    return directions[0]["legs"][0]["duration_in_traffic"]["value"]
 
 api_key = 'AIzaSyCdkxrlZ8vXkr4BSAHJJIZKjkqVHDQvlBE'
 gmaps = googlemaps.Client(key=api_key)
@@ -23,8 +22,7 @@ desired_arrival = datetime(year, month, day, hour, minute)
 
 # Estimate travel duration by getting directions with a departure time equal to the desired arrival time
 directions = get_directions(origin, destination, desired_arrival)
-estimated_duration = get_duration(directions)
-estimated_departure = desired_arrival - timedelta(seconds=estimated_duration)
+estimated_departure = desired_arrival - timedelta(seconds=get_duration(directions))
 
 # Determine the estimated departure time that produces the desired arrival time
 while True:
@@ -36,8 +34,7 @@ while True:
     else:
         estimated_departure = estimated_departure - (estimated_arrival - desired_arrival)
 
-print()
-print(f'Estimated Departure: {estimated_departure.hour}:{estimated_departure.minute:02d}')
+print(f'\nEstimated Departure: {estimated_departure.hour}:{estimated_departure.minute:02d}')
 print(f'Estimated Arrival: {estimated_arrival.hour}:{estimated_arrival.minute:02d}')
 print(f'Travel Time: {directions[0]["legs"][0]["duration"]["text"]}')
 print(f'Distance: {directions[0]["legs"][0]["distance"]["text"]}')
