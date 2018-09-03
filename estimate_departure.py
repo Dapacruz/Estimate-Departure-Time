@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-# Estimate travel departure time using Google APIs
+'''
+Estimate travel departure time using Google APIs
+'''
 
 import googlemaps
 from datetime import datetime, timedelta
@@ -21,23 +23,27 @@ def get_estimated_departure(origin, destination, desired_arrival):
 if __name__ == '__main__':
     origin = str(input('Start Address [Roseville, CA]: ') or "Roseville, CA")
     destination = str(input('Destination Address [Marriott Marquis, San Francisco]: ') or "Marriott Marquis, Mission Street, San Francisco")
-    arrival_date = str(input('Arrival Date [04/15/2018]: ') or '04/15/2018')
+    default_arrival_date = (datetime.now() + timedelta(days=1)).strftime('%m/%d/%Y')
+    arrival_date = str(input(f'Arrival Date [{default_arrival_date}]: ') or default_arrival_date)
     month, day, year = map(int, arrival_date.split('/'))
-    arrival_time = str(input('Desired Arrival Time [10:00]: ') or '10:00')
+    arrival_time = str(input('Desired Arrival Time [8:00]: ') or '8:00')
     hour, minute = map(int, arrival_time.split(':'))
     desired_arrival = datetime(year, month, day, hour, minute)
+    max_iterations = 25
 
     # Estimate travel duration by getting directions with a departure time equal to the desired arrival time
     estimated_departure = get_estimated_departure(origin, destination, desired_arrival)
 
     # Determine the estimated departure time that produces the desired arrival time
-    while True:
-        directions = get_directions(origin, destination, estimated_departure)    
+    iteration = 0
+    while iteration <= max_iterations:
+        iteration += 1
+        directions = get_directions(origin, destination, estimated_departure)
         delta = timedelta(seconds=get_duration(directions))
         estimated_arrival = estimated_departure + delta
-        if estimated_arrival == desired_arrival:
+        if estimated_arrival.strftime('%H:%M') == desired_arrival.strftime('%H:%M'):
             break
-        elif estimated_arrival > desired_arrival:
+        elif estimated_arrival.strftime('%H:%M') > desired_arrival.strftime('%H:%M'):
             estimated_departure = estimated_departure - (estimated_arrival - desired_arrival)
         else:
             estimated_departure = estimated_departure + (desired_arrival - estimated_arrival)
@@ -47,4 +53,6 @@ if __name__ == '__main__':
     print(f'\nEstimated Departure: {estimated_departure.hour}:{estimated_departure.minute:02d}')
     print(f'Estimated Arrival: {estimated_arrival.hour}:{estimated_arrival.minute:02d}')
     print(f'\nTravel Time: {directions[0]["legs"][0]["duration_in_traffic"]["text"]}')
-    print(f'Distance: {directions[0]["legs"][0]["distance"]["text"]}')
+    print(f'Distance: {directions[0]["legs"][0]["distance"]["text"]}\n')
+
+    input('Enter to quit')
