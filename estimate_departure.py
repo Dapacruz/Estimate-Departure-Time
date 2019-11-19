@@ -4,6 +4,7 @@
 Estimate travel departure time using Google APIs
 '''
 
+import argparse
 import googlemaps
 from datetime import datetime, timedelta
 
@@ -20,25 +21,40 @@ def get_estimated_departure(origin, destination, desired_arrival):
     directions = get_directions(origin, destination, desired_arrival)
     return desired_arrival - timedelta(seconds=get_duration(directions))
 
-if __name__ == '__main__':
-    origin = str(input('Start Address [Roseville, CA]: ') or "Roseville, CA")
-    destination = str(input('Destination Address [Marriott Marquis, San Francisco]: ') or "Marriott Marquis, Mission Street, San Francisco")
-    default_arrival_date = (datetime.now() + timedelta(days=1)).strftime('%m/%d/%Y')
-    arrival_date = str(input(f'Arrival Date [{default_arrival_date}]: ') or default_arrival_date)
-    month, day, year = map(int, arrival_date.split('/'))
-    arrival_time = str(input('Desired Arrival Time [8:00]: ') or '8:00')
-    hour, minute = map(int, arrival_time.split(':'))
+def main():
+    parser = argparse.ArgumentParser(description='Estimates travel departure time using Google APIs')
+    parser.add_argument('-o', '--origin', type=str, help='Start location')
+    parser.add_argument('-d', '--destination', type=str, help='End location')
+    parser.add_argument('-ad', '--arrival-date', type=str, help='Arrival date')
+    parser.add_argument('-at', '--arrival-time', type=str, help='Desired arrival time')
+    parser.add_argument('-mi', '--max_iterations', type=int, default=25, help='Max iterations (default is 25)')
+    args = parser.parse_args()
+
+    if not args.origin:
+        args.origin = str(input('Start Address [Roseville, CA]: ') or "Roseville, CA")
+    
+    if not args.destination:
+        args.destination = str(input('Destination Address [Marriott Marquis, San Francisco]: ') or "Marriott Marquis, Mission Street, San Francisco")
+    
+    if not args.arrival_date:
+        default_arrival_date = (datetime.now() + timedelta(days=1)).strftime('%m/%d/%Y')
+        args.arrival_date = str(input(f'Arrival Date [{default_arrival_date}]: ') or default_arrival_date)
+    
+    if not args.arrival_time:
+        args.arrival_time = str(input('Desired Arrival Time [8:00]: ') or '8:00')
+
+    month, day, year = map(int, args.arrival_date.split('/'))
+    hour, minute = map(int, args.arrival_time.split(':'))
     desired_arrival = datetime(year, month, day, hour, minute)
-    max_iterations = 25
 
     # Estimate travel duration by getting directions with a departure time equal to the desired arrival time
-    estimated_departure = get_estimated_departure(origin, destination, desired_arrival)
+    estimated_departure = get_estimated_departure(args.origin, args.destination, desired_arrival)
 
     # Determine the estimated departure time that produces the desired arrival time
     iteration = 0
-    while iteration <= max_iterations:
+    while iteration <= args.max_iterations:
         iteration += 1
-        directions = get_directions(origin, destination, estimated_departure)
+        directions = get_directions(args.origin, args.destination, estimated_departure)
         delta = timedelta(seconds=get_duration(directions))
         estimated_arrival = estimated_departure + delta
         if estimated_arrival.strftime('%H:%M') == desired_arrival.strftime('%H:%M'):
@@ -55,4 +71,7 @@ if __name__ == '__main__':
     print(f'\nTravel Time: {directions[0]["legs"][0]["duration_in_traffic"]["text"]}')
     print(f'Distance: {directions[0]["legs"][0]["distance"]["text"]}\n')
 
-    input('Enter to quit')
+    # input('Enter to quit')
+
+if __name__ == '__main__':
+    main()
